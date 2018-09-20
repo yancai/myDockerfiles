@@ -16,6 +16,6 @@ ADD https://dl.google.com/go/go1.11.linux-amd64.tar.gz /tmp
 
 RUN tar -xf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
     && go get github.com/Masterminds/glide \
-    && git clone https://github.com/helm/helm.git /usr/local/go/src/github.com/helm/helm \
+    && git clone https://github.com/helm/helm.git /root/go/src/github.com/helm/helm \
     && cd /root/go/src/github.com/helm/helm \
     && glide install
