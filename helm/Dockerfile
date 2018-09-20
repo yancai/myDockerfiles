@@ -2,6 +2,7 @@ FROM centos:7.2.1511
 
 MAINTAINER yancai
 ENV TZ Asia/Shanghai
+ENV PATH /usr/local/go/bin:/root/go/bin:$PATH
 
 # 设置yum源 安装常用工具
 RUN curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
@@ -14,10 +15,7 @@ WORKDIR /root
 ADD https://dl.google.com/go/go1.11.linux-amd64.tar.gz /tmp
 
 RUN tar -xf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
-    && ls /usr/local \
-    && /usr/local/go/bin/go get github.com/Masterminds/glide \
-    && git clone https://github.com/helm/helm.git /usr/local/go/src/github.com/helm/helm
-
-WORKDIR /root/go/src/github.com/helm/helm
-
-RUN /root/go/bin/glide install
+    && go get github.com/Masterminds/glide \
+    && git clone https://github.com/helm/helm.git /usr/local/go/src/github.com/helm/helm \
+    && cd /root/go/src/github.com/helm/helm \
+    && glide install
