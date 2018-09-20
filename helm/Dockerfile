@@ -11,9 +11,9 @@ RUN curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Cen
 WORKDIR /root
 
 # install go sdk
-ADD https://dl.google.com/go/go1.11.linux-amd64.tar.gz /usr/local
+ADD https://dl.google.com/go/go1.11.linux-amd64.tar.gz /tmp
 
-RUN ls /usr/local \
+RUN tar -xvf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
     && /usr/local/go/bin/go get github.com/Masterminds/glide \
     && /usr/local/go/bin/go get github.com/helm/helm \
     && cd /root/go/src/github.com/helm/helm \
