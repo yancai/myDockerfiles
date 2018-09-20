@@ -16,7 +16,7 @@ ADD https://dl.google.com/go/go1.11.linux-amd64.tar.gz /tmp
 RUN tar -xf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
     && ls /usr/local \
     && /usr/local/go/bin/go get github.com/Masterminds/glide \
-    && /usr/local/go/bin/go get -d github.com/helm/helm
+    && git clone https://github.com/helm/helm.git /usr/local/go/src/github.com/helm/helm
 
 WORKDIR /root/go/src/github.com/helm/helm
 
