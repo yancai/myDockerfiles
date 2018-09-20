@@ -13,8 +13,11 @@ WORKDIR /root
 # install go sdk
 ADD https://dl.google.com/go/go1.11.linux-amd64.tar.gz /tmp
 
-RUN tar -xvf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
+RUN tar -xf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
+    && ls /usr/local \
     && /usr/local/go/bin/go get github.com/Masterminds/glide \
-    && /usr/local/go/bin/go get github.com/helm/helm \
-    && cd /root/go/src/github.com/helm/helm \
-    && /root/go/bin/glide install
+    && /usr/local/go/bin/go get github.com/helm/helm
+
+WORKDIR /root/go/src/github.com/helm/helm
+
+RUN /root/go/bin/glide install
