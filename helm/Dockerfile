@@ -18,4 +18,5 @@ RUN tar -xf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
     && go get github.com/Masterminds/glide \
     && git clone https://github.com/helm/helm.git /root/go/src/github.com/helm/helm \
     && cd /root/go/src/github.com/helm/helm \
+    && git checkout -b v2.8.2 v2.8.2
     && glide install
