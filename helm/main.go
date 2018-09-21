@@ -1,72 +1,66 @@
 package main
 
 import (
-	"fmt"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/helm/pkg/helm"
-	helm_env "k8s.io/helm/pkg/helm/environment"
-	"k8s.io/helm/pkg/helm/portforwarder"
-	"k8s.io/helm/pkg/kube"
-	"log"
+    "fmt"
+    "k8s.io/helm/pkg/tlsutil"
+    "os"
+    "k8s.io/helm/pkg/helm"
+    helm_env "k8s.io/helm/pkg/helm/environment"
+    "k8s.io/helm/pkg/kube"
 )
 
 var (
-	settings helm_env.EnvSettings
+    tlsCaCertFile string // path to TLS CA certificate file
+    tlsCertFile   string // path to TLS certificate file
+    tlsKeyFile    string // path to TLS key file
+    tlsVerify     bool   // enable TLS and verify remote certificates
+    tlsEnable     bool   // enable TLS
+
+    tlsCaCertDefault = "$HELM_HOME/ca.pem"
+    tlsCertDefault   = "$HELM_HOME/cert.pem"
+    tlsKeyDefault    = "$HELM_HOME/key.pem"
+
+    tillerTunnel *kube.Tunnel
+    settings     helm_env.EnvSettings
 )
 
-// configForContext creates a Kubernetes REST client configuration for a given kubeconfig context.
-func configForContext(context string) (*rest.Config, error) {
-	config, err := kube.GetConfig(context).ClientConfig()
-	if err != nil {
-		return nil, fmt.Errorf("could not get Kubernetes config for context %q: %s", context, err)
-	}
-	return config, nil
+func newClient() helm.Interface {
+    options := []helm.Option{helm.Host(settings.TillerHost), helm.ConnectTimeout(settings.TillerConnectionTimeout)}
+
+    if tlsVerify || tlsEnable {
+        if tlsCaCertFile == "" {
+            tlsCaCertFile = settings.Home.TLSCaCert()
+        }
+        if tlsCertFile == "" {
+            tlsCertFile = settings.Home.TLSCert()
+        }
+        if tlsKeyFile == "" {
+            tlsKeyFile = settings.Home.TLSKey()
+        }
+        debug("Key=%q, Cert=%q, CA=%q\n", tlsKeyFile, tlsCertFile, tlsCaCertFile)
+        tlsopts := tlsutil.Options{KeyFile: tlsKeyFile, CertFile: tlsCertFile, InsecureSkipVerify: true}
+        if tlsVerify {
+            tlsopts.CaCertFile = tlsCaCertFile
+            tlsopts.InsecureSkipVerify = false
+        }
+        tlscfg, err := tlsutil.ClientConfig(tlsopts)
+        if err != nil {
+            fmt.Fprintln(os.Stderr, err)
+            os.Exit(2)
+        }
+        options = append(options, helm.WithTLS(tlscfg))
+    }
+    return helm.NewClient(options...)
 }
 
-// getKubeClient creates a Kubernetes config and client for a given kubeconfig context.
-func getKubeClient(context string) (*rest.Config, kubernetes.Interface, error) {
-	config, err := configForContext(context)
-	if err != nil {
-		return nil, nil, err
-	}
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, nil, fmt.Errorf("could not get Kubernetes client: %s", err)
-	}
-	return config, client, nil
-}
 
 func debug(format string, args ...interface{}) {
-	if settings.Debug {
-		format = fmt.Sprintf("[debug] %s\n", format)
-		fmt.Printf(format, args...)
-	}
+    if settings.Debug {
+        format = fmt.Sprintf("[debug] %s\n", format)
+        fmt.Printf(format, args...)
+    }
 }
 
-func main() {
-	fmt.Println("hello")
-	if settings.TillerHost == "" {
-		config, client, err := getKubeClient(settings.KubeContext)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		tunnel, err := portforwarder.New(settings.TillerNamespace, client, config)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		settings.TillerHost = fmt.Sprintf("127.0.0.1:%d", tunnel.Local)
-		debug("Created tunnel using local port: '%d'\n", tunnel.Local)
-	}
-	fmt.Println(settings.TillerHost)
-
-	cli := helm.NewClient()
-	result, err := cli.GetVersion()
-	if err != nil {
-		log.Fatal("get version error: ", err)
-	}
-
-	fmt.Println(result)
+func main () {
+    fmt.Println("hello")
 }

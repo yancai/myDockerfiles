@@ -2,7 +2,3 @@ package: temp/helmdemo
 import:
 - package: k8s.io/helm
   version: v2.9.1
-- package: k8s.io/kubernetes
-  version: release-1.10
-- package: k8s.io/client-go
-  version: kubernetes-1.10.0
