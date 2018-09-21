@@ -1,6 +1,6 @@
 FROM centos:7.2.1511
 
-LABEL maintainer "yancai@gmail.com"
+LABEL maintainer "yancai915@gmail.com"
 ENV TZ Asia/Shanghai
 ENV PATH /usr/local/go/bin:/root/go/bin:$PATH
 
