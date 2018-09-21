@@ -20,4 +20,5 @@ ADD main.go /root/go/src/temp/helmdemo
 RUN tar -xf /tmp/go1.11.linux-amd64.tar.gz -C /usr/local \
     && go get github.com/Masterminds/glide \
     && cd /root/go/src/temp/helmdemo \
-    && glide install
+    && glide install \
+    && rm /root/.glide -rf
