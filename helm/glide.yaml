@@ -1,6 +1,6 @@
 package: temp/helmdemo
 import:
 - package: k8s.io/helm
-  version: v2.11.0
+  version: v2.10.0
 - package: github.com/astaxie/beego
   version: v1.10.1
